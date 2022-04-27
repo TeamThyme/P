@@ -33,8 +33,8 @@ app.get('/products/:pId', (req, res) => {
   pool
     .query(`select feature, value from features where product_id = ${pId}`)
     .then((result) => {
-      product[0].features = result.rows;
-      product[0].id = Number(product[0].id) + 37310;
+      // product[0].features = result.rows;
+      // product[0].id = Number(product[0].id) + 37310;
       res.status(200).send(product);
     })
     .catch((err) => console.error(err));
