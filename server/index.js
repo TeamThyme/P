@@ -28,15 +28,15 @@ app.get('/products/:pId', (req, res) => {
   let product = [];
   pool
     .query(`SELECT * FROM "product info" WHERE "id" = ${pId}`)
-    // .then((result) => (product = result.rows))
-    .then((result) => console.log(result.rows))
-    .catch((err) => console.log('error in server route #2 /products/:pId'));
-    // .catch((err) => res.status(500).send('Error in server route #2'));
+    .then((result) => (product = result.rows))
+    // .then((result) => console.log(result.rows))
+    // .catch((err) => console.log('error in server route #2 /products/:pId'));
+    .catch((err) => res.status(500).send('Error in server route #2'));
   pool
     .query(`select feature, value from features where product_id = ${pId}`)
     .then((result) => {
-      // product[0].features = result.rows;
-      // product[0].id = Number(product[0].id) + 37310;
+      product[0].features = result.rows;
+      product[0].id = Number(product[0].id) + 37310;
       res.status(200).send(product);
     })
     .catch((err) => console.error(err));
