@@ -11,7 +11,7 @@ const { pool } = require('../db');
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Routes
+// Routes //
 // #1 - Products (All) - UNUSED
 app.get('/products', (req, res) => {
   pool
@@ -41,10 +41,8 @@ app.get('/products/:pId', (req, res) => {
 });
 
 // #3 - Styles
-// Attempt #3
 app.get('/products/:pId/styles', (req, res) => {
   const pId = req.params.pId - 37310;
-
   return pool
     .query(
       `SELECT
@@ -110,6 +108,7 @@ app.get('/products/:pId/related', (req, res) => {
     })
     .catch((err) => console.error(err));
 });
+
 
 app.listen(PORT, () => {
   console.log(`Listening on port: ${PORT}`);
