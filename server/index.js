@@ -24,27 +24,34 @@ app.get('/products', (req, res) => {
 
 // #2 - Products (Single)
 app.get('/products/:pId', (req, res) => {
-  const pId = req.params.pId - 37310;
-  let product = [];
-  pool
-    .query(`SELECT * FROM "product info" WHERE "id" = ${pId}`)
-    .then((result) => (product = result.rows))
-    // .then((result) => console.log(result.rows))
-    // .catch((err) => console.log('error in server route #2 /products/:pId'));
-    .catch((err) => res.status(500).send('Error in server route #2'));
-  pool
-    .query(`select feature, value from features where product_id = ${pId}`)
-    .then((result) => {
-      product[0].features = result.rows;
-      product[0].id = Number(product[0].id) + 37310;
-      res.status(200).send(product);
-    })
+  return pool
+    .query(
+      `SELECT
+        product.id,
+        product.name,
+        product.slogan,
+        product.description,
+        product.category,
+        product.default_price,
+        (
+          SELECT json_agg(featuresObj)
+          FROM (
+            SELECT
+              features.feature,
+              features.value
+            FROM features
+            WHERE features.product_id = $1
+          ) AS featuresObj
+        ) AS features
+        FROM product
+        WHERE id = $1 + 37310`
+    , [req.params.pId - 37310])
+    .then((result) => res.status(200).send(result.rows))
     .catch((err) => console.error(err));
 });
 
 // #3 - Styles
 app.get('/products/:pId/styles', (req, res) => {
-  const pId = req.params.pId - 37310;
   return pool
     .query(
       `SELECT
@@ -74,12 +81,12 @@ app.get('/products/:pId/styles', (req, res) => {
                 WHERE skus.style_id = styles.id
               ) AS skus
               FROM styles
-              WHERE product_id = ${pId}
+              WHERE product_id = $1
           ) AS stylesObj
         ) AS results
         FROM product
-        WHERE id = ${pId} + 37310`
-    )
+        WHERE id = $1 + 37310`
+    , [req.params.pId - 37310])
     .then((result) => {
       for (let i = 0; i < result.rows[0].results.length; i++) {
         result.rows[0].results[i].style_id += 220997;
