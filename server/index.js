@@ -16,9 +16,7 @@ app.use(morgan('dev'));
 app.get('/products', (req, res) => {
   pool
     .query('SELECT * FROM "product info" LIMIT 5')
-    .then((result) => {
-      res.status(200).send(result.rows);
-    })
+    .then((result) => res.status(200).send(result.rows))
     .catch((err) => res.status(500).send('Error in server route #1'));
 });
 
@@ -44,8 +42,8 @@ app.get('/products/:pId', (req, res) => {
           ) AS featuresObj
         ) AS features
         FROM product
-        WHERE id = $1 + 37310`
-    , [req.params.pId - 37310])
+        WHERE id = $1`
+    , [req.params.pId])
     .then((result) => res.status(200).send(result.rows))
     .catch((err) => console.error(err));
 });
@@ -85,36 +83,18 @@ app.get('/products/:pId/styles', (req, res) => {
           ) AS stylesObj
         ) AS results
         FROM product
-        WHERE id = $1 + 37310`
-    , [req.params.pId - 37310])
-    .then((result) => {
-      for (let i = 0; i < result.rows[0].results.length; i++) {
-        result.rows[0].results[i].style_id += 220997;
-        let skusResult =  result.rows[0].results[i]['skus']
-        for (let sku in skusResult) {
-          skusResult[String(Number(sku) + 1281031)] = skusResult[sku];
-          delete skusResult[sku];
-        }
-      }
-      res.status(200).send(result.rows);
-    })
+        WHERE id = $1`
+    , [req.params.pId])
+    .then((result) => res.status(200).send(result.rows))
     .catch((err) => console.error(err));
 });
 
 // #4 - Related
 app.get('/products/:pId/related', (req, res) => {
-  const pId = req.params.pId - 37310;
-  let related = [];
   pool
-    .query(
-      `SELECT "related_product_id" FROM related WHERE current_product_id = ${pId}`,
-    )
-    .then((result) => {
-      for (let i = 0; i < result.rows.length; i++) {
-        related.push(result.rows[i].related_product_id + 37310);
-      }
-      res.status(200).send(related);
-    })
+    .query(`SELECT "related_product_id" FROM related WHERE current_product_id = $1`
+    , [request.params.pId])
+    .then((result) => res.status(200).send(result.rows))
     .catch((err) => console.error(err));
 });
 
