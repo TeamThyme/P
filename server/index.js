@@ -93,7 +93,7 @@ app.get('/products/:pId/styles', (req, res) => {
 app.get('/products/:pId/related', (req, res) => {
   pool
     .query(`SELECT "related_product_id" FROM related WHERE current_product_id = $1`
-    , [request.params.pId])
+    , [req.params.pId])
     .then((result) => res.status(200).send(result.rows))
     .catch((err) => console.error(err));
 });
